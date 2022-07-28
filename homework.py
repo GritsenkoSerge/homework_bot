@@ -169,7 +169,7 @@ def main() -> None:
     bot_handler.setFormatter(logging.Formatter(
         '%(asctime)s [%(levelname)s] (%(funcName)s) %(message)s'
     ))
-    bot_handler.setLevel(logging.INFO)
+    bot_handler.setLevel(logging.ERROR)
     bot_handler.addFilter(NoRepeatFilter())
     logger.addHandler(bot_handler)
 
