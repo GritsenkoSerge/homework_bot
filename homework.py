@@ -1,15 +1,15 @@
-...
+import os
+from datetime import time
+
+from dotenv import load_dotenv, dotenv_values
+
 
 load_dotenv()
-
-
-PRACTICUM_TOKEN = ...
-TELEGRAM_TOKEN = ...
-TELEGRAM_CHAT_ID = ...
+practicum_token = os.getenv('PRACTICUM_TOKEN')
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
-HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
+HEADERS = {'Authorization': f'OAuth {practicum_token}'}
 
 
 HOMEWORK_STATUSES = {
@@ -19,8 +19,8 @@ HOMEWORK_STATUSES = {
 }
 
 
-def send_message(bot, message):
-    ...
+def send_message(bot, message) -> None:
+    pass
 
 
 def get_api_answer(current_timestamp):
@@ -48,8 +48,12 @@ def parse_status(homework):
     return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
-def check_tokens():
-    ...
+def check_tokens() -> bool:
+    return [
+        'PRACTICUM_TOKEN',
+        'TELEGRAM_TOKEN',
+        'TELEGRAM_CHAT_ID',
+    ] in dotenv_values().keys()
 
 
 def main():
