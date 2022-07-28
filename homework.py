@@ -1,15 +1,19 @@
+from datetime import datetime
 import os
-from datetime import time
+from typing import Any, Dict
 
-from dotenv import load_dotenv, dotenv_values
+import requests
+from dotenv import load_dotenv
 
 
 load_dotenv()
-practicum_token = os.getenv('PRACTICUM_TOKEN')
+PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
+TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
-HEADERS = {'Authorization': f'OAuth {practicum_token}'}
+HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 
 HOMEWORK_STATUSES = {
@@ -23,11 +27,10 @@ def send_message(bot, message) -> None:
     pass
 
 
-def get_api_answer(current_timestamp):
-    timestamp = current_timestamp or int(time.time())
+def get_api_answer(current_timestamp) -> Dict[str, Any]:
+    timestamp = current_timestamp or int(datetime.now().timestamp())
     params = {'from_date': timestamp}
-
-    ...
+    return requests.get(ENDPOINT, headers=HEADERS, params=params).json()
 
 
 def check_response(response):
@@ -49,11 +52,16 @@ def parse_status(homework):
 
 
 def check_tokens() -> bool:
-    return [
-        'PRACTICUM_TOKEN',
-        'TELEGRAM_TOKEN',
-        'TELEGRAM_CHAT_ID',
-    ] in dotenv_values().keys()
+    if PRACTICUM_TOKEN is None:
+        print('Не задан PRACTICUM_TOKEN')
+        return False
+    if TELEGRAM_TOKEN is None:
+        print('Не задан TELEGRAM_TOKEN')
+        return False
+    if TELEGRAM_CHAT_ID is None:
+        print('Не задан TELEGRAM_CHAT_ID')
+        return False
+    return True
 
 
 def main():
