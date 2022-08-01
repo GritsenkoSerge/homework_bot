@@ -27,7 +27,7 @@ handler.setFormatter(logging.Formatter(
 ))
 logger.addHandler(handler)
 
-RETRY_TIME = 60
+RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -161,20 +161,16 @@ def check_tokens() -> bool:
     Если отсутствует хотя бы одна переменная окружения -
     функция должна вернуть False, иначе - True.
     """
-    if not all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID]):
-        logger.critical('Не задана переменная окружения TELEGRAM_CHAT_ID')
-        return False
-    return True
+    return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
 def main() -> None:
     """Основная логика работы бота."""
     if not check_tokens():
-        logger.critical(
-            'Отсутствует обязательная переменная окружения. '
-            'Программа принудительно остановлена.'
-        )
-        sys.exit(1)
+        message = ('Отсутствует обязательная переменная окружения. '
+                   'Программа принудительно остановлена.')
+        logger.critical(message)
+        sys.exit(message)
 
     bot = tg.Bot(token=TELEGRAM_TOKEN)
 
