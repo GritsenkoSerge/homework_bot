@@ -7,6 +7,7 @@ from typing import Any, Dict, Union
 
 import requests
 import telegram as tg
+from telegram.ext import CommandHandler, Updater
 from dotenv import load_dotenv
 
 from exceptions import (EmptyAPIResponseError, GetAPIRequestError,
@@ -30,6 +31,7 @@ logger.addHandler(handler)
 RETRY_TIME = 600
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
+KITTY_ENDPOINT = 'https://api.thecatapi.com/v1/images/search'
 
 
 HOMEWORK_STATUSES = {
@@ -67,6 +69,37 @@ class NoRepeatFilter(logging.Filter):
         allow = self.msg != record.msg
         self.msg = record.msg
         return allow
+
+
+def get_new_image() -> str:
+    """The get_new_image."""
+    try:
+        response = requests.get(KITTY_ENDPOINT)
+    except Exception as error:
+        logger.error(f'Ошибка при запросе к основному API: {error}')
+        new_url = 'https://api.thedogapi.com/v1/images/search'
+        response = requests.get(new_url)
+    response = response.json()
+    return response[0].get('url')
+
+
+def new_cat(update, context) -> None:
+    """The new_cat."""
+    chat = update.effective_chat
+    context.bot.send_photo(chat.id, get_new_image())
+
+
+def wake_up(update, context) -> None:
+    """The wake_up."""
+    chat = update.effective_chat
+    name = update.message.chat.first_name
+    button = tg.ReplyKeyboardMarkup([['/newcat']], resize_keyboard=True)
+    context.bot.send_message(
+        chat_id=chat.id,
+        text=f'Привет, {name}! Посмотри, какого котика я тебе нашёл!',
+        reply_markup=button
+    )
+    context.bot.send_photo(chat.id, get_new_image())
 
 
 def send_message(bot: tg.Bot, message: str) -> None:
@@ -171,6 +204,13 @@ def main() -> None:
                    'Программа принудительно остановлена.')
         logger.critical(message)
         sys.exit(message)
+
+    updater = Updater(token=TELEGRAM_TOKEN)
+
+    updater.dispatcher.add_handler(CommandHandler('start', wake_up))
+    updater.dispatcher.add_handler(CommandHandler('newcat', new_cat))
+
+    updater.start_polling()
 
     bot = tg.Bot(token=TELEGRAM_TOKEN)
 
