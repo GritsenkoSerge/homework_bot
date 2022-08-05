@@ -28,7 +28,7 @@ handler.setFormatter(logging.Formatter(
 ))
 logger.addHandler(handler)
 
-RETRY_TIME = 600
+RETRY_TIME = 60
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 KITTY_ENDPOINT = 'https://api.thecatapi.com/v1/images/search'
