@@ -3,7 +3,7 @@ import os
 import sys
 import time
 from http import HTTPStatus
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
 import requests
 import telegram as tg
@@ -153,16 +153,16 @@ def get_api_answer(current_timestamp) -> Dict[str, Any]:
     return answer
 
 
-def check_response(response: Dict[str, Any]) -> Dict[str, Any]:
+def check_response(response: Dict[str, Any]) -> List[str, Any]:
     """Проверяет ответ API на корректность. Возвращает список работ."""
     if not isinstance(response, dict):
         raise TypeError('В ответе API нет словаря.')
     homeworks = response.get('homeworks')
+    if not homeworks:
+        raise EmptyAPIResponseError('В ответе API нет ключа homeworks.')
     current_date = response.get('current_date')
-    if homeworks is None:
-        raise EmptyAPIResponseError('В ответе API нет ключа homeworks.')
-    if current_date is None:
-        raise EmptyAPIResponseError('В ответе API нет ключа homeworks.')
+    if not current_date:
+        raise EmptyAPIResponseError('В ответе API нет ключа current_date.')
     if not isinstance(homeworks, list):
         raise TypeError('В ответе API homeworks не является списком.')
     return homeworks
@@ -222,7 +222,7 @@ def main() -> None:
     bot_handler.addFilter(NoRepeatFilter())
     logger.addHandler(bot_handler)
 
-    current_timestamp = int(time.time()) - RETRY_TIME
+    current_timestamp = int(time.time()) - RETRY_TIME * 6 * 24 * 60 * 60
 
     while True:
         try:
