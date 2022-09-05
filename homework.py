@@ -222,7 +222,7 @@ def main() -> None:
     bot_handler.addFilter(NoRepeatFilter())
     logger.addHandler(bot_handler)
 
-    current_timestamp = int(time.time()) - RETRY_TIME * 60 * 8
+    current_timestamp = int(time.time()) - RETRY_TIME
 
     while True:
         try:
