@@ -153,12 +153,12 @@ def get_api_answer(current_timestamp) -> Dict[str, Any]:
     return answer
 
 
-def check_response(response: Dict[str, Any]) -> List[str, Any]:
+def check_response(response: Dict[str, Any]) -> List[Any]:
     """Проверяет ответ API на корректность. Возвращает список работ."""
     if not isinstance(response, dict):
         raise TypeError('В ответе API нет словаря.')
     homeworks = response.get('homeworks')
-    if not homeworks:
+    if homeworks is None:
         raise EmptyAPIResponseError('В ответе API нет ключа homeworks.')
     current_date = response.get('current_date')
     if not current_date:
@@ -222,7 +222,7 @@ def main() -> None:
     bot_handler.addFilter(NoRepeatFilter())
     logger.addHandler(bot_handler)
 
-    current_timestamp = int(time.time()) - RETRY_TIME * 6 * 24 * 60 * 60
+    current_timestamp = int(time.time()) - RETRY_TIME * 60 * 8
 
     while True:
         try:
